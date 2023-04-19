@@ -37,7 +37,7 @@ lua支持模块化配置，我们创建如下图所示的文件（plugins目录�
 ### 5. 说明一下这几个文件的用途
 + init.lua 核心配置文件，用来加载其他的配置文件
 + options.lua 基础配置，包括一些行号、tab、换行等配置
-+ lzay.lua  插件管理器lazy.nvim的配置
++ lazy.lua  插件管理器lazy.nvim的配置
 + keymaps.lua 快捷键设置
 + plugins目录下的都是一些插件配置
 
