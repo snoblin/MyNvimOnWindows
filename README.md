@@ -5,14 +5,16 @@
 ![图片](https://user-images.githubusercontent.com/47561884/233071377-388c587e-91a8-4b6e-848f-62d91aead83f.png)
 
 ## 安装步骤
-1. 下载安装vim，由于vim有点老旧，所以安装NeoVim，下载后直接双击Neovim Qt运行，下载链接：https://github.com/neovim/neovim/releases/tag/stable
+### 1. 下载安装vim
+由于vim有点老旧，所以安装NeoVim，下载后直接双击Neovim Qt运行，下载链接：https://github.com/neovim/neovim/releases/tag/stable
 ![图片](https://user-images.githubusercontent.com/47561884/233074519-378da667-ffa9-4a53-8672-cde4ee2c6ccf.png)
 
-2. 安装完成后运行一下健康检查，检查环境是否齐全
+### 2. 健康检查
+安装完成后运行一下健康检查`:checkhealth`，检查环境是否齐全
 ![图片](https://user-images.githubusercontent.com/47561884/233074581-1d604f46-bcd6-4216-a68e-5bf96913911f.png)
 
 
-3. 环境配置
+### 3. 环境配置
 
 按照官方文档配置（https://github.com/neovim/neovim/wiki/Installing-Neovim）
 ![图片](https://user-images.githubusercontent.com/47561884/233076430-7f33be83-c2a5-4af9-8cb1-21313b91a4a7.png)
@@ -28,20 +30,22 @@
 
 上面配置好之后记得再次运行健康检查`:checkhealth`
 
-4. lua支持模块化配置，我们创建如下图所示的文件
+### 4. 配置目录
+lua支持模块化配置，我们创建如下图所示的文件（plugins目录下的都是一些插件配置）
  ![图片](https://user-images.githubusercontent.com/47561884/233079153-cc315088-6252-4490-a490-4576e2198b82.png)
 
-5. 主要说明一下这几个文件的用途
+### 5. 说明一下这几个文件的用途
 + init.lua 核心配置文件，用来加载其他的配置文件
 + options.lua 基础配置，包括一些行号、tab、换行等配置
 + lzay.lua  插件管理器lazy.nvim的配置
 + keymaps.lua 快捷键设置
 + plugins目录下的都是一些插件配置
 
-6. 插件管理器安装
+### 6. 插件管理器安装
 
-这里选择Lazy.nvim作为插件管理器（主要是有个ui，看起来舒服），直接按照官方文档(https://github.com/folke/lazy.nvim)安装：
-这里需要安装Nerd Font(一款字体，不安装的话插件中有些符号无法显示)
+这里选择Lazy.nvim作为插件管理器（主要是有个ui，看起来舒服），直接按照官方文档安装：(https://github.com/folke/lazy.nvim)
+
+> 这里需要安装Nerd Font(一款字体，不安装的话插件中有些符号无法显示)
 
 ![图片](https://user-images.githubusercontent.com/47561884/233081543-9222a94c-9013-4d38-a11f-48a59241dfd4.png)
 
@@ -76,15 +80,67 @@ lazy.setup({
 
 ![图片](https://user-images.githubusercontent.com/47561884/233081016-7cfcc689-2d7a-4e02-9246-88a6291dbced.png)
 
-7. 插件安装示例
+### 7. 插件安装示例
   基本上都是在github上找官方文档一步一步安装的，这里就以安装`nvim-tree`为案例演示一下插件安装的方法(https://github.com/nvim-tree/nvim-tree.lua)
   
   ![图片](https://user-images.githubusercontent.com/47561884/233086847-a6e11e33-4f91-4460-b635-2cf75d2659b1.png)
 
   - 编写lazy.lua
+  ````lua
+    local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+    if not vim.loop.fs_stat(lazypath) then
+        vim.fn.system({
+            "git", "clone", "--filter=blob:none",
+            "https://github.com/folke/lazy.nvim.git", "--branch=stable", -- latest stable release
+            lazypath
+        })
+    end
+    vim.opt.rtp:prepend(lazypath)
+
+    -- Use a protected call so we don't error out on first use
+    local status_ok, lazy = pcall(require, 'lazy')
+    if not status_ok then return end
+    -- Start setup
+    lazy.setup({
+        spec = {
+            {
+                "nvim-tree/nvim-tree.lua",
+                version = "*",
+                dependencies = {"nvim-tree/nvim-web-devicons"},
+                config = function() require("nvim-tree").setup {} end
+            }
+        }
+    })
+````
   - 运行`:Lazy`安装
-  - 编写配置文件`nvim-tree.lua`
+  - 编写配置文件`nvim-tree.lua`，这些配置都在官方文档里
+  ````lua
+    local status,ntree = pcall(require,'nvim-tree')
+    if not status then 
+        return
+    end
+
+    vim.g.loaded_netrw = 1
+    vim.g.loaded_netrwPlugin = 1
+
+    vim.opt.termguicolors = true
+
+    ntree.setup({
+    sort_by = "case_sensitive",
+    renderer = {
+        group_empty = true,
+    },
+    filters = {
+        dotfiles = true,
+    },
+    })
+
+  ````
   - init.lua中导入
+  ````lua
+  -- 省略lua文件夹
+  require('plugins.nvim-tree')
+  ````
   - 输入`:so`重新加载配置文件
   
   
@@ -111,10 +167,12 @@ numToStr/Comment.nvim：注释
 
 tpope/vim-surround：成对符号修改，可以很方便输入成对的符号，例如将一串字符中间的几个字符用括号包裹起来
 
-LSP：
-williamboman/mason.nvim| 
-illiamboman/mason-lspconfig.nvim| 
-neovim/nvim-lspconfig
+
+williamboman/mason.nvim: mason,LSP安装管理器
+
+illiamboman/mason-lspconfig.nvim: LSP
+
+neovim/nvim-lspconfig : LSP
 
 
 folke/trouble.nvim ：显示warning
