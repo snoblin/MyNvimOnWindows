@@ -13,5 +13,10 @@
 
 
 3. 环境配置
-+ 必要
-+ 可选
+
+1）首先按照官方文档配置（https://github.com/neovim/neovim/wiki/Installing-Neovim）
+
+
+
+windows环境变量
+
